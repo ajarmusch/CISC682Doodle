@@ -71,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (item_id == R.id.erase_id) {
             toggle_eraser();
             return true;
+        } else if (item_id == R.id.save_id) {
+            doodle_view.save();
+            return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
@@ -100,11 +103,11 @@ public class MainActivity extends AppCompatActivity {
         set_color_button.setOnClickListener(v -> {
             doodle_view.set_draw_color(get_selected_color());
             color_popup.dismiss();
-            Toast.makeText(this, "Color Updated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Color Changed", Toast.LENGTH_SHORT).show();
         });
 
         popup_builder.setView(popup_view);
-        popup_builder.setTitle("Choose Color");
+        popup_builder.setTitle("Color");
         color_popup = popup_builder.create();
         color_popup.getWindow().setBackgroundDrawableResource(R.drawable.rounded_dialog_background);
         color_popup.show();
@@ -171,11 +174,11 @@ public class MainActivity extends AppCompatActivity {
         set_width_button.setOnClickListener(v -> {
             doodle_view.set_line_width(width_seekbar.getProgress());
             line_width_popup.dismiss();
-            Toast.makeText(this, "Brush Size Set to " + width_seekbar.getProgress(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Brush Size is " + width_seekbar.getProgress(), Toast.LENGTH_SHORT).show();
         });
 
         popup_builder.setView(popup_view);
-        popup_builder.setTitle("Set Brush Size");
+        popup_builder.setTitle("Brush Size");
         line_width_popup = popup_builder.create();
         line_width_popup.getWindow().setBackgroundDrawableResource(R.drawable.rounded_dialog_background);
         line_width_popup.show();

@@ -1,5 +1,6 @@
 package com.example.doodle;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -11,10 +12,18 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.io.IOException;
+import java.util.HashMap;
+import android.content.ContentValues;
+import android.provider.MediaStore;
+import android.net.Uri;
+import android.os.Build;
+import java.io.OutputStream;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.HashMap;
 
 public class DoodleView extends View {
     private static final float TOUCH_TOLERANCE = 10f;
@@ -135,6 +144,43 @@ public class DoodleView extends View {
         previous_point_map.clear();
         bitmap.eraseColor(Color.WHITE);
         invalidate();
+    }
+
+    public void save() {
+        String f_name = "Doodle_" + System.currentTimeMillis() + ".png";
+        String mime_type = "image/jpeg";
+        String relative_path = "Download/DoodleApp";
+
+        try {
+            ContentResolver resolver = getContext().getContentResolver();
+            ContentValues content_values = new ContentValues();
+            content_values.put(MediaStore.MediaColumns.DISPLAY_NAME, f_name);
+            content_values.put(MediaStore.MediaColumns.MIME_TYPE, mime_type);
+            content_values.put(MediaStore.MediaColumns.RELATIVE_PATH, relative_path);
+
+            Uri image_uri = null;
+
+            // Check for Android Q or later
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                image_uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, content_values);
+            }
+
+            if (image_uri != null) {
+                try (OutputStream output_stream = resolver.openOutputStream(image_uri)) {
+                    if (output_stream != null && bitmap != null) {
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output_stream);
+                        Toast.makeText(getContext(), "Doodle saved :D", Toast.LENGTH_LONG).show();
+                    }
+                }
+            } else {
+                throw new IOException("Failed to create URI");
+            }
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Error with Doodle save", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        } finally {
+            clear();
+        }
     }
 
     public void set_eraser_mode(boolean erasing) {
